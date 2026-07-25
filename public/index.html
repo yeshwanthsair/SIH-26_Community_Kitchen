@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Community Kitchen — Meal Distribution and Stock Register" />
+  <title>Community Kitchen</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       SIDEBAR
+  ════════════════════════════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-header">
+      <span class="sidebar-logo" aria-hidden="true">🍽️</span>
+      <div class="sidebar-brand">
+        <span class="sidebar-title">Community</span>
+        <span class="sidebar-subtitle">Kitchen</span>
+      </div>
+      <button class="sidebar-close" id="sidebarClose" aria-label="Close sidebar">✕</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul role="list">
+        <li>
+          <a href="#dashboard" class="nav-link active" data-page="dashboard" aria-current="page">
+            <span class="nav-icon" aria-hidden="true">📊</span>
+            <span class="nav-label">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="#records" class="nav-link" data-page="records">
+            <span class="nav-icon" aria-hidden="true">📋</span>
+            <span class="nav-label">Register</span>
+          </a>
+        </li>
+        <li>
+          <a href="#records-view" class="nav-link" data-page="records-view">
+            <span class="nav-icon" aria-hidden="true">🗂️</span>
+            <span class="nav-label">Records</span>
+          </a>
+        </li>
+        <li>
+          <a href="#analytics" class="nav-link" data-page="analytics">
+            <span class="nav-icon" aria-hidden="true">📈</span>
+            <span class="nav-label">Analytics</span>
+          </a>
+        </li>
+        <li>
+          <a href="#chat" class="nav-link" data-page="chat">
+            <span class="nav-icon" aria-hidden="true">💬</span>
+            <span class="nav-label">Chat</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <span class="sidebar-version"><span class="sidebar-status-dot" aria-hidden="true"></span> v1.0.0 — Production</span>
+    </div>
+  </aside>
+
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MAIN WRAPPER
+  ════════════════════════════════════════════════════════════ -->
+  <div class="app-wrapper">
+
+    <!-- ── TOP NAV ─────────────────────────────────────────── -->
+    <header class="topbar" role="banner">
+      <div class="topbar-left">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle sidebar" aria-expanded="false" aria-controls="sidebar">
+          <span class="hamburger"></span>
+          <span class="hamburger"></span>
+          <span class="hamburger"></span>
+        </button>
+        <div class="topbar-breadcrumb">
+          <span class="breadcrumb-icon" id="breadcrumbIcon" aria-hidden="true">📊</span>
+          <h1 class="topbar-page-title" id="pageTitle">Dashboard</h1>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="app-status" aria-label="Application status"><span aria-hidden="true"></span> System online</div>
+        <div class="topbar-date" id="topbarDate" aria-label="Today's date"></div>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode" title="Toggle dark mode">
+          <span class="theme-icon" aria-hidden="true">🌙</span>
+        </button>
+        <button class="refresh-btn" id="refreshBtn" aria-label="Refresh data" title="Refresh">
+          <span class="refresh-icon" aria-hidden="true">↻</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ── PAGE CONTENT ───────────────────────────────────── -->
+    <main class="page-content" id="pageContent" role="main">
+
+      <!-- ══════ DASHBOARD PAGE ══════ -->
+      <section class="page" id="page-dashboard" aria-label="Dashboard">
+
+        <!-- Low Stock Alert Banner -->
+        <div class="alert alert-warning hidden" id="lowStockAlert" role="alert" aria-live="polite">
+          <span class="alert-icon" aria-hidden="true">⚠️</span>
+          <span class="alert-text" id="lowStockText">Stock running low!</span>
+          <button class="alert-dismiss" id="alertDismiss" aria-label="Dismiss alert">✕</button>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="section-header">
+          <h2 class="section-title">Today's Overview</h2>
+          <span class="section-meta" id="latestRecordDate">—</span>
+        </div>
+
+        <div class="cards-grid" id="cardsGrid">
+          <!-- Skeleton cards shown while loading -->
+          <div class="card skeleton" aria-hidden="true"></div>
+          <div class="card skeleton" aria-hidden="true"></div>
+          <div class="card skeleton" aria-hidden="true"></div>
+          <div class="card skeleton" aria-hidden="true"></div>
+          <div class="card skeleton" aria-hidden="true"></div>
+          <div class="card skeleton" aria-hidden="true"></div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="section-header" style="margin-top:2rem">
+          <h2 class="section-title">Trends</h2>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <h3 class="chart-title">Meals Served — Last 14 Days</h3>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="mealsChart" role="img" aria-label="Meals served line chart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <h3 class="chart-title">Stock Balance — Last 14 Days</h3>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="stockChart" role="img" aria-label="Stock balance line chart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <h3 class="chart-title">Ingredient Usage — Latest Record</h3>
+            </div>
+            <div class="chart-wrapper chart-wrapper--sm">
+              <canvas id="ingredientsChart" role="img" aria-label="Ingredient usage doughnut chart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <h3 class="chart-title">Day Status Breakdown</h3>
+            </div>
+            <div class="chart-wrapper chart-wrapper--sm">
+              <canvas id="statusChart" role="img" aria-label="Day status breakdown doughnut chart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly Bar Chart -->
+        <div class="chart-card chart-card--full" style="margin-top:1.5rem">
+          <div class="chart-card-header">
+            <h3 class="chart-title">Monthly Meals Summary</h3>
+          </div>
+          <div class="chart-wrapper chart-wrapper--tall">
+            <canvas id="monthlyChart" role="img" aria-label="Monthly meals bar chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Top Days Table -->
+        <div class="section-header" style="margin-top:2rem">
+          <h2 class="section-title">Top 5 Days by Meals Served</h2>
+        </div>
+        <div class="table-card">
+          <div class="table-wrapper">
+            <table class="data-table" id="topDaysTable" aria-label="Top 5 days by meals served">
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Date</th>
+                  <th scope="col">Meals Served</th>
+                  <th scope="col">Cost / Meal</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody id="topDaysTbody">
+                <tr class="skeleton-row"><td colspan="5"><div class="skeleton-line"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Recent Records Table -->
+        <div class="section-header" style="margin-top:2rem">
+          <h2 class="section-title">Recent Records</h2>
+        </div>
+        <div class="table-card">
+          <div class="table-wrapper">
+            <table class="data-table" id="recentTable" aria-label="Recent kitchen records">
+              <thead>
+                <tr>
+                  <th scope="col">Date</th>
+                  <th scope="col">Meals</th>
+                  <th scope="col">Rice (kg)</th>
+                  <th scope="col">Dal (kg)</th>
+                  <th scope="col">Veg (kg)</th>
+                  <th scope="col">Stock (kg)</th>
+                  <th scope="col">Cost/Meal</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+              <tbody id="recentTbody">
+                <tr class="skeleton-row"><td colspan="8"><div class="skeleton-line"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ══════ RECORDS PAGE ══════ -->
+      <section class="page hidden" id="page-records" aria-label="Daily Register">
+
+        <!-- ── Two-column layout: Form left, History right ── -->
+        <div class="register-layout">
+
+          <!-- ┌─────────────────────────────────────────────┐ -->
+          <!-- │  ADD NEW RECORD FORM                        │ -->
+          <!-- └─────────────────────────────────────────────┘ -->
+          <div class="register-form-col">
+            <div class="form-card">
+              <div class="form-card-header">
+                <span class="form-card-icon" aria-hidden="true">📝</span>
+                <div>
+                  <h2 class="form-card-title">Daily Register</h2>
+                  <p class="form-card-subtitle">Add today's kitchen record</p>
+                </div>
+              </div>
+
+              <!-- Toast notification area -->
+              <div id="registerToast" class="toast hidden" role="alert" aria-live="assertive" aria-atomic="true">
+                <span class="toast-icon" id="toastIcon" aria-hidden="true"></span>
+                <span class="toast-msg"  id="toastMsg"></span>
+                <button class="toast-close" id="toastClose" aria-label="Dismiss">✕</button>
+              </div>
+
+              <form id="registerForm" novalidate autocomplete="off">
+
+                <!-- Date + Status row -->
+                <div class="form-row form-row--2">
+                  <div class="form-group" id="fg-date">
+                    <label class="form-label" for="f-date">
+                      Date <span class="form-required" aria-hidden="true">*</span>
+                    </label>
+                    <input
+                      type="date"
+                      id="f-date"
+                      name="date"
+                      class="form-control"
+                      required
+                      aria-describedby="err-date"
+                    />
+                    <span class="form-error" id="err-date" role="alert" aria-live="polite"></span>
+                  </div>
+
+                  <div class="form-group" id="fg-status">
+                    <label class="form-label" for="f-status">
+                      Status <span class="form-required" aria-hidden="true">*</span>
+                    </label>
+                    <select id="f-status" name="status" class="form-control" required aria-describedby="err-status">
+                      <option value="" disabled selected>Choose…</option>
+                      <option value="open">🟢 Open</option>
+                      <option value="closed">🔴 Closed</option>
+                      <option value="holiday">🟡 Holiday</option>
+                    </select>
+                    <span class="form-error" id="err-status" role="alert" aria-live="polite"></span>
+                  </div>
+                </div>
+
+                <!-- Operational fields — shown/hidden by status -->
+                <div id="operationalFields">
+
+                  <!-- Meals Served -->
+                  <div class="form-group" id="fg-meals">
+                    <label class="form-label" for="f-meals">
+                      Meals Served <span class="form-required" aria-hidden="true">*</span>
+                    </label>
+                    <div class="input-with-hint">
+                      <input
+                        type="number"
+                        id="f-meals"
+                        name="meals_served"
+                        class="form-control"
+                        min="0"
+                        step="1"
+                        placeholder="e.g. 250"
+                        aria-describedby="err-meals hint-meals"
+                      />
+                    </div>
+                    <span class="form-hint" id="hint-meals">Total meals distributed that day</span>
+                    <span class="form-error" id="err-meals" role="alert" aria-live="polite"></span>
+                  </div>
+
+                  <!-- Ingredients row -->
+                  <div class="form-row form-row--3">
+                    <div class="form-group" id="fg-rice">
+                      <label class="form-label" for="f-rice">
+                        Rice Used (kg) <span class="form-required" aria-hidden="true">*</span>
+                      </label>
+                      <input type="number" id="f-rice" name="rice_kg" class="form-control"
+                        min="0" step="0.01" placeholder="0.00" aria-describedby="err-rice" />
+                      <span class="form-error" id="err-rice" role="alert" aria-live="polite"></span>
+                    </div>
+
+                    <div class="form-group" id="fg-dal">
+                      <label class="form-label" for="f-dal">
+                        Dal Used (kg) <span class="form-required" aria-hidden="true">*</span>
+                      </label>
+                      <input type="number" id="f-dal" name="dal_kg" class="form-control"
+                        min="0" step="0.01" placeholder="0.00" aria-describedby="err-dal" />
+                      <span class="form-error" id="err-dal" role="alert" aria-live="polite"></span>
+                    </div>
+
+                    <div class="form-group" id="fg-veg">
+                      <label class="form-label" for="f-veg">
+                        Vegetables (kg) <span class="form-required" aria-hidden="true">*</span>
+                      </label>
+                      <input type="number" id="f-veg" name="vegetables_kg" class="form-control"
+                        min="0" step="0.01" placeholder="0.00" aria-describedby="err-veg" />
+                      <span class="form-error" id="err-veg" role="alert" aria-live="polite"></span>
+                    </div>
+                  </div>
+
+                  <!-- Stock + Cost row -->
+                  <div class="form-row form-row--2">
+                    <div class="form-group" id="fg-stock">
+                      <label class="form-label" for="f-stock">
+                        Stock Balance (kg) <span class="form-required" aria-hidden="true">*</span>
+                      </label>
+                      <input type="number" id="f-stock" name="stock_balance" class="form-control"
+                        min="0" step="0.01" placeholder="0.00" aria-describedby="err-stock hint-stock" />
+                      <span class="form-hint" id="hint-stock">Remaining stock after today</span>
+                      <span class="form-error" id="err-stock" role="alert" aria-live="polite"></span>
+                    </div>
+
+                    <div class="form-group" id="fg-cost">
+                      <label class="form-label" for="f-cost">
+                        Cost / Meal (₹) <span class="form-required" aria-hidden="true">*</span>
+                      </label>
+                      <div class="input-prefix-wrap">
+                        <span class="input-prefix" aria-hidden="true">₹</span>
+                        <input type="number" id="f-cost" name="cost_per_meal" class="form-control input-has-prefix"
+                          min="0" step="0.01" placeholder="0.00" aria-describedby="err-cost" />
+                      </div>
+                      <span class="form-error" id="err-cost" role="alert" aria-live="polite"></span>
+                    </div>
+                  </div>
+
+                  <!-- Auto-calculated rice_per_meal preview -->
+                  <div class="calc-preview" id="calcPreview" aria-live="polite">
+                    <span class="calc-label">Rice per meal</span>
+                    <span class="calc-value" id="calcRicePerMeal">—</span>
+                    <span class="calc-note">auto-calculated</span>
+                  </div>
+
+                </div><!-- /operationalFields -->
+
+                <!-- Form actions -->
+                <div class="form-actions">
+                  <button type="button" class="btn btn--ghost" id="resetFormBtn">
+                    <span aria-hidden="true">↩</span> Reset
+                  </button>
+                  <button type="submit" class="btn btn--primary" id="submitBtn">
+                    <span class="btn-spinner hidden" aria-hidden="true"></span>
+                    <span class="btn-text">
+                      <span aria-hidden="true">✚</span> Save Record
+                    </span>
+                  </button>
+                </div>
+
+              </form>
+            </div><!-- /form-card -->
+          </div><!-- /register-form-col -->
+
+          <!-- ┌─────────────────────────────────────────────┐ -->
+          <!-- │  RECENT RECORDS HISTORY                     │ -->
+          <!-- └─────────────────────────────────────────────┘ -->
+          <div class="register-history-col">
+            <div class="history-card">
+              <div class="history-header">
+                <h2 class="history-title">
+                  <span aria-hidden="true">🗂️</span> Recent Entries
+                </h2>
+                <div class="history-controls">
+                  <input
+                    type="search"
+                    id="historySearch"
+                    class="history-search"
+                    placeholder="Filter by date or status…"
+                    aria-label="Filter records"
+                  />
+                  <button class="btn btn--sm btn--ghost" id="historyRefreshBtn" aria-label="Refresh records list" title="Refresh">
+                    <span class="refresh-icon" aria-hidden="true">↻</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Records count badge -->
+              <div class="history-meta">
+                <span id="historyCount" class="history-count"></span>
+              </div>
+
+              <div class="table-wrapper" id="historyTableWrap">
+                <table class="data-table" id="historyTable" aria-label="Recent daily records">
+                  <thead>
+                    <tr>
+                      <th scope="col">Date</th>
+                      <th scope="col">Status</th>
+                      <th scope="col">Meals</th>
+                      <th scope="col">Rice</th>
+                      <th scope="col">Dal</th>
+                      <th scope="col">Veg</th>
+                      <th scope="col">Stock</th>
+                      <th scope="col">₹/Meal</th>
+                      <th scope="col">Rice/Meal</th>
+                    </tr>
+                  </thead>
+                  <tbody id="historyTbody">
+                    <tr class="skeleton-row">
+                      <td colspan="9"><div class="skeleton-line"></div></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Pagination -->
+              <div class="history-pagination" id="historyPagination" aria-label="Pagination">
+                <button class="page-btn" id="prevPageBtn" disabled aria-label="Previous page">‹ Prev</button>
+                <span class="page-info" id="pageInfo">Page 1</span>
+                <button class="page-btn" id="nextPageBtn" disabled aria-label="Next page">Next ›</button>
+              </div>
+
+            </div><!-- /history-card -->
+          </div><!-- /register-history-col -->
+
+        </div><!-- /register-layout -->
+
+      </section>
+
+      <!-- ══════ RECORDS VIEW PAGE — Phase 6 ══════ -->
+      <section class="page hidden" id="page-records-view" aria-label="Records">
+
+        <!-- Toolbar -->
+        <div class="rv-toolbar">
+          <div class="rv-toolbar-left">
+            <div class="rv-search-wrap">
+              <span class="rv-search-icon" aria-hidden="true">🔍</span>
+              <input
+                type="search"
+                id="rvSearch"
+                class="rv-search"
+                placeholder="Search by date…"
+                aria-label="Search records by date"
+                autocomplete="off"
+              />
+            </div>
+
+            <select id="rvFilterStatus" class="rv-filter" aria-label="Filter by status">
+              <option value="">All statuses</option>
+              <option value="open">🟢 Open</option>
+              <option value="closed">🔴 Closed</option>
+              <option value="holiday">🟡 Holiday</option>
+            </select>
+
+            <input
+              type="month"
+              id="rvFilterMonth"
+              class="rv-filter"
+              aria-label="Filter by month"
+              title="Filter by month"
+            />
+
+            <button class="btn btn--ghost btn--sm" id="rvClearFilters" title="Clear all filters">
+              ✕ Clear
+            </button>
+          </div>
+
+          <div class="rv-toolbar-right">
+            <span class="rv-count" id="rvCount" aria-live="polite"></span>
+            <button class="btn btn--ghost btn--sm" id="rvExportBtn" title="Export to CSV">
+              <span aria-hidden="true">⬇</span> Export CSV
+            </button>
+            <button class="btn btn--ghost btn--sm" id="rvRefreshBtn" aria-label="Refresh" title="Refresh">
+              <span class="refresh-icon" aria-hidden="true">↻</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Records table card -->
+        <div class="table-card rv-table-card">
+
+          <!-- Loading state -->
+          <div class="rv-state rv-state--loading hidden" id="rvLoading" aria-label="Loading records">
+            <div class="rv-spinner" aria-hidden="true"></div>
+            <p>Loading records…</p>
+          </div>
+
+          <!-- Error state -->
+          <div class="rv-state rv-state--error hidden" id="rvError" role="alert">
+            <span class="rv-state-icon" aria-hidden="true">⚠️</span>
+            <p id="rvErrorMsg">Could not load records.</p>
+            <button class="btn btn--ghost btn--sm" id="rvRetryBtn">Retry</button>
+          </div>
+
+          <!-- Empty state -->
+          <div class="rv-state rv-state--empty hidden" id="rvEmpty">
+            <span class="rv-state-icon" aria-hidden="true">🗃️</span>
+            <p id="rvEmptyMsg">No records found.</p>
+          </div>
+
+          <!-- Table -->
+          <div class="table-wrapper" id="rvTableWrap">
+            <table class="data-table rv-table" id="rvTable" aria-label="All daily records">
+              <thead>
+                <tr>
+                  <th scope="col" class="th-sortable" data-col="date" aria-sort="none">
+                    Date <span class="sort-icon" aria-hidden="true">⇅</span>
+                  </th>
+                  <th scope="col">Status</th>
+                  <th scope="col" class="th-sortable" data-col="meals_served" aria-sort="none">
+                    Meals <span class="sort-icon" aria-hidden="true">⇅</span>
+                  </th>
+                  <th scope="col">Rice (kg)</th>
+                  <th scope="col">Dal (kg)</th>
+                  <th scope="col">Veg (kg)</th>
+                  <th scope="col" class="th-sortable" data-col="stock_balance" aria-sort="none">
+                    Stock (kg) <span class="sort-icon" aria-hidden="true">⇅</span>
+                  </th>
+                  <th scope="col" class="th-sortable" data-col="cost_per_meal" aria-sort="none">
+                    ₹/Meal <span class="sort-icon" aria-hidden="true">⇅</span>
+                  </th>
+                  <th scope="col">Rice/Meal</th>
+                  <th scope="col" class="th-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="rvTbody">
+                <tr class="skeleton-row"><td colspan="10"><div class="skeleton-line"></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Pagination footer -->
+          <div class="rv-pagination" id="rvPagination">
+            <div class="rv-page-size">
+              <label for="rvPageSize" class="rv-page-size-label">Rows:</label>
+              <select id="rvPageSize" class="rv-filter rv-filter--sm" aria-label="Rows per page">
+                <option value="10">10</option>
+                <option value="20" selected>20</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </div>
+            <div class="rv-page-nav">
+              <button class="page-btn" id="rvFirst"  aria-label="First page"    disabled>«</button>
+              <button class="page-btn" id="rvPrev"   aria-label="Previous page" disabled>‹</button>
+              <span   class="page-info" id="rvPageInfo">Page 1 of 1</span>
+              <button class="page-btn" id="rvNext"   aria-label="Next page"     disabled>›</button>
+              <button class="page-btn" id="rvLast"   aria-label="Last page"     disabled>»</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Edit Modal ─────────────────────────────────────── -->
+        <div class="modal-backdrop hidden" id="editModalBackdrop" aria-hidden="true">
+          <div
+            class="modal"
+            id="editModal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="editModalTitle"
+          >
+            <div class="modal-header">
+              <h2 class="modal-title" id="editModalTitle">Edit Record</h2>
+              <button class="modal-close" id="editModalClose" aria-label="Close modal">✕</button>
+            </div>
+
+            <div class="modal-body">
+              <!-- Edit toast -->
+              <div id="editToast" class="toast hidden" role="alert" aria-live="assertive">
+                <span class="toast-icon" id="editToastIcon" aria-hidden="true"></span>
+                <span class="toast-msg"  id="editToastMsg"></span>
+                <button class="toast-close" id="editToastClose" aria-label="Dismiss">✕</button>
+              </div>
+
+              <form id="editForm" novalidate autocomplete="off">
+                <input type="hidden" id="ef-id" />
+
+                <div class="form-row form-row--2">
+                  <div class="form-group">
+                    <label class="form-label" for="ef-date">Date <span class="form-required">*</span></label>
+                    <input type="date" id="ef-date" class="form-control" required aria-describedby="ef-err-date" />
+                    <span class="form-error" id="ef-err-date" role="alert" aria-live="polite"></span>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="ef-status">Status <span class="form-required">*</span></label>
+                    <select id="ef-status" class="form-control" required aria-describedby="ef-err-status">
+                      <option value="open">🟢 Open</option>
+                      <option value="closed">🔴 Closed</option>
+                      <option value="holiday">🟡 Holiday</option>
+                    </select>
+                    <span class="form-error" id="ef-err-status" role="alert" aria-live="polite"></span>
+                  </div>
+                </div>
+
+                <div class="form-row form-row--2">
+                  <div class="form-group">
+                    <label class="form-label" for="ef-meals">Meals Served <span class="form-required">*</span></label>
+                    <input type="number" id="ef-meals" class="form-control" min="0" step="1" aria-describedby="ef-err-meals" />
+                    <span class="form-error" id="ef-err-meals" role="alert" aria-live="polite"></span>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="ef-stock">Stock Balance (kg) <span class="form-required">*</span></label>
+                    <input type="number" id="ef-stock" class="form-control" min="0" step="0.01" aria-describedby="ef-err-stock" />
+                    <span class="form-error" id="ef-err-stock" role="alert" aria-live="polite"></span>
+                  </div>
+                </div>
+
+                <div class="form-row form-row--3">
+                  <div class="form-group">
+                    <label class="form-label" for="ef-rice">Rice (kg) <span class="form-required">*</span></label>
+                    <input type="number" id="ef-rice" class="form-control" min="0" step="0.01" aria-describedby="ef-err-rice" />
+                    <span class="form-error" id="ef-err-rice" role="alert" aria-live="polite"></span>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="ef-dal">Dal (kg) <span class="form-required">*</span></label>
+                    <input type="number" id="ef-dal" class="form-control" min="0" step="0.01" aria-describedby="ef-err-dal" />
+                    <span class="form-error" id="ef-err-dal" role="alert" aria-live="polite"></span>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="ef-veg">Vegetables (kg) <span class="form-required">*</span></label>
+                    <input type="number" id="ef-veg" class="form-control" min="0" step="0.01" aria-describedby="ef-err-veg" />
+                    <span class="form-error" id="ef-err-veg" role="alert" aria-live="polite"></span>
+                  </div>
+                </div>
+
+                <div class="form-row form-row--2">
+                  <div class="form-group">
+                    <label class="form-label" for="ef-cost">Cost / Meal (₹) <span class="form-required">*</span></label>
+                    <div class="input-prefix-wrap">
+                      <span class="input-prefix" aria-hidden="true">₹</span>
+                      <input type="number" id="ef-cost" class="form-control input-has-prefix" min="0" step="0.01" aria-describedby="ef-err-cost" />
+                    </div>
+                    <span class="form-error" id="ef-err-cost" role="alert" aria-live="polite"></span>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="ef-rpm">Rice / Meal (kg)</label>
+                    <input type="number" id="ef-rpm" class="form-control" min="0" step="0.0001" placeholder="auto-calculated" aria-describedby="ef-err-rpm" />
+                    <span class="form-hint">Leave blank to auto-calculate</span>
+                    <span class="form-error" id="ef-err-rpm" role="alert" aria-live="polite"></span>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div class="modal-footer">
+              <button class="btn btn--ghost" id="editCancelBtn">Cancel</button>
+              <button class="btn btn--primary" id="editSaveBtn">
+                <span class="btn-spinner hidden" aria-hidden="true"></span>
+                <span class="btn-text">Save Changes</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── Delete Confirm Modal ────────────────────────── -->
+        <div class="modal-backdrop hidden" id="deleteModalBackdrop" aria-hidden="true">
+          <div
+            class="modal modal--sm"
+            id="deleteModal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="deleteModalTitle"
+          >
+            <div class="modal-header">
+              <h2 class="modal-title" id="deleteModalTitle">Delete Record</h2>
+              <button class="modal-close" id="deleteModalClose" aria-label="Close modal">✕</button>
+            </div>
+            <div class="modal-body">
+              <p class="delete-confirm-text">
+                Are you sure you want to delete the record for
+                <strong id="deleteRecordDate">—</strong>?
+                This action cannot be undone.
+              </p>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn--ghost" id="deleteCancelBtn">Cancel</button>
+              <button class="btn btn--danger" id="deleteConfirmBtn">
+                <span class="btn-spinner hidden" aria-hidden="true"></span>
+                <span class="btn-text">🗑 Delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ══════ ANALYTICS PAGE — Phase 7 ══════ -->
+      <section class="page hidden" id="page-analytics" aria-label="Analytics">
+
+        <!-- ── Period Tabs ──────────────────────────────────── -->
+        <div class="an-header">
+          <div class="an-tabs" role="tablist" aria-label="Analytics period">
+            <button class="an-tab active" role="tab" data-period="monthly"  aria-selected="true"  id="tab-monthly">📅 Monthly</button>
+            <button class="an-tab"        role="tab" data-period="weekly"   aria-selected="false" id="tab-weekly">📆 Weekly</button>
+            <button class="an-tab"        role="tab" data-period="yearly"   aria-selected="false" id="tab-yearly">🗓 Yearly</button>
+          </div>
+          <button class="btn btn--ghost btn--sm" id="anRefreshBtn" aria-label="Refresh analytics" title="Refresh">
+            <span class="refresh-icon" aria-hidden="true">↻</span>
+          </button>
+        </div>
+
+        <!-- ── KPI Summary Cards ────────────────────────────── -->
+        <div class="an-cards" id="anCards">
+          <!-- injected by JS -->
+          <div class="card skeleton" aria-hidden="true"></div>
+          <div class="card skeleton" aria-hidden="true"></div>
+          <div class="card skeleton" aria-hidden="true"></div>
+          <div class="card skeleton" aria-hidden="true"></div>
+          <div class="card skeleton" aria-hidden="true"></div>
+          <div class="card skeleton" aria-hidden="true"></div>
+        </div>
+
+        <!-- ── Abnormal Usage Alert ─────────────────────────── -->
+        <div class="an-alert hidden" id="anAbnormalAlert" role="alert" aria-live="polite">
+          <span aria-hidden="true">⚠️</span>
+          <span id="anAbnormalText"></span>
+        </div>
+
+        <!-- ── Charts ───────────────────────────────────────── -->
+        <div class="an-charts-grid" id="anChartsGrid">
+
+          <!-- Meals chart (period-sensitive) -->
+          <div class="chart-card an-chart-wide">
+            <div class="chart-card-header">
+              <h3 class="chart-title" id="anMealsChartTitle">Meals Served by Month</h3>
+            </div>
+            <div class="chart-wrapper chart-wrapper--tall">
+              <canvas id="anMealsChart" role="img" aria-label="Meals served chart"></canvas>
+            </div>
+          </div>
+
+          <!-- Cost chart -->
+          <div class="chart-card an-chart-wide">
+            <div class="chart-card-header">
+              <h3 class="chart-title" id="anCostChartTitle">Avg Cost / Meal by Month</h3>
+            </div>
+            <div class="chart-wrapper chart-wrapper--tall">
+              <canvas id="anCostChart" role="img" aria-label="Cost per meal chart"></canvas>
+            </div>
+          </div>
+
+          <!-- Ingredient consumption chart -->
+          <div class="chart-card an-chart-wide">
+            <div class="chart-card-header">
+              <h3 class="chart-title" id="anIngChartTitle">Ingredient Consumption by Month (kg)</h3>
+            </div>
+            <div class="chart-wrapper chart-wrapper--tall">
+              <canvas id="anIngChart" role="img" aria-label="Ingredient consumption chart"></canvas>
+            </div>
+          </div>
+
+          <!-- Stock trend -->
+          <div class="chart-card an-chart-wide">
+            <div class="chart-card-header">
+              <h3 class="chart-title">Stock Balance Trend (Last 30 Days)</h3>
+            </div>
+            <div class="chart-wrapper chart-wrapper--tall">
+              <canvas id="anStockChart" role="img" aria-label="Stock balance trend chart"></canvas>
+            </div>
+          </div>
+
+          <!-- Status doughnut -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <h3 class="chart-title">Day Status Breakdown</h3>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="anStatusChart" role="img" aria-label="Status breakdown chart"></canvas>
+            </div>
+          </div>
+
+          <!-- Stock expected vs actual -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <h3 class="chart-title">Expected vs Actual Stock (Last 30)</h3>
+            </div>
+            <div class="chart-wrapper">
+              <canvas id="anStockVarChart" role="img" aria-label="Stock variance chart"></canvas>
+            </div>
+          </div>
+
+        </div><!-- /an-charts-grid -->
+
+        <!-- ── Insights Tables ───────────────────────────────── -->
+        <div class="an-tables-grid">
+
+          <!-- Low Stock Days -->
+          <div class="table-card">
+            <div class="an-table-header">
+              <h3 class="an-table-title">⚠️ Low Stock Days</h3>
+              <span class="an-table-meta" id="lowStockMeta"></span>
+            </div>
+            <div class="table-wrapper">
+              <table class="data-table" aria-label="Low stock days">
+                <thead>
+                  <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Meals</th>
+                    <th scope="col">Stock (kg)</th>
+                  </tr>
+                </thead>
+                <tbody id="lowStockTbody">
+                  <tr class="skeleton-row"><td colspan="4"><div class="skeleton-line"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Abnormal Usage -->
+          <div class="table-card">
+            <div class="an-table-header">
+              <h3 class="an-table-title">🚨 Abnormal Usage Flags</h3>
+              <span class="an-table-meta" id="abnormalMeta"></span>
+            </div>
+            <div class="table-wrapper">
+              <table class="data-table" aria-label="Abnormal usage flags">
+                <thead>
+                  <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Flag</th>
+                    <th scope="col">Value</th>
+                    <th scope="col">Avg</th>
+                    <th scope="col">Threshold</th>
+                  </tr>
+                </thead>
+                <tbody id="abnormalTbody">
+                  <tr class="skeleton-row"><td colspan="5"><div class="skeleton-line"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Period Breakdown Table -->
+          <div class="table-card an-table-full">
+            <div class="an-table-header">
+              <h3 class="an-table-title" id="periodTableTitle">📅 Monthly Breakdown</h3>
+            </div>
+            <div class="table-wrapper">
+              <table class="data-table" id="periodTable" aria-label="Period breakdown">
+                <thead id="periodTableHead"></thead>
+                <tbody id="periodTableBody">
+                  <tr class="skeleton-row"><td colspan="8"><div class="skeleton-line"></div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div><!-- /an-tables-grid -->
+
+      </section>
+
+      <!-- ══════ CHAT PAGE — Phase 8 ══════ -->
+      <section class="page hidden" id="page-chat" aria-label="AI Assistant">
+
+        <div class="chat-page-layout">
+
+          <!-- ── Sidebar: Suggested prompts + About ─────────── -->
+          <aside class="chat-sidebar" aria-label="Chat suggestions">
+            <div class="chat-sidebar-header">
+              <span aria-hidden="true">🤖</span>
+              <h2 class="chat-sidebar-title">AI Assistant</h2>
+            </div>
+            <p class="chat-sidebar-desc">
+              Ask questions about kitchen data in plain English.
+            </p>
+
+            <h3 class="chat-suggestions-label">Try asking</h3>
+            <ul class="chat-suggestions" id="chatSuggestions">
+              <li><button class="chat-suggestion" data-msg="How many meals were served today?">🍽️ Meals today</button></li>
+              <li><button class="chat-suggestion" data-msg="What is the current rice stock?">📦 Rice stock</button></li>
+              <li><button class="chat-suggestion" data-msg="What is the average meals per day?">📊 Average meals</button></li>
+              <li><button class="chat-suggestion" data-msg="Which day had the highest meals served?">🏆 Highest meals</button></li>
+              <li><button class="chat-suggestion" data-msg="How much rice was used?">🌾 Rice usage</button></li>
+              <li><button class="chat-suggestion" data-msg="What is the average cost per meal?">₹ Cost per meal</button></li>
+              <li><button class="chat-suggestion" data-msg="Is stock running low?">⚠️ Low stock?</button></li>
+              <li><button class="chat-suggestion" data-msg="How many meals this month?">📅 This month</button></li>
+              <li><button class="chat-suggestion" data-msg="Give me an overview">🗂️ Overview</button></li>
+            </ul>
+
+            <div class="chat-sidebar-footer">
+              <button class="btn btn--ghost btn--sm" id="clearChatBtn" aria-label="Clear chat history">
+                🗑 Clear history
+              </button>
+            </div>
+          </aside>
+
+          <!-- ── Main chat window ──────────────────────────── -->
+          <div class="chat-main">
+            <div class="chat-window" id="chatWindow" role="log" aria-live="polite" aria-label="Chat messages">
+              <!-- Messages injected here by JS -->
+              <div class="chat-welcome" id="chatWelcome">
+                <span class="chat-welcome-icon" aria-hidden="true">👨‍🍳</span>
+                <h3>Hello! I'm your Kitchen Assistant.</h3>
+                <p>Ask me anything about meals, stock, costs, or usage patterns.</p>
+              </div>
+            </div>
+
+            <!-- Typing indicator -->
+            <div class="chat-typing hidden" id="chatTyping" aria-live="polite" aria-atomic="true">
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+              <div class="typing-dot"></div>
+            </div>
+
+            <!-- Input bar -->
+            <form class="chat-input-bar" id="chatPageForm" autocomplete="off">
+              <input
+                type="text"
+                id="chatPageInput"
+                class="chat-input"
+                placeholder="Ask about meals, stock, costs…"
+                aria-label="Chat message"
+                maxlength="500"
+                autocomplete="off"
+                spellcheck="true"
+              />
+              <button type="submit" class="chat-send-btn" id="chatPageSendBtn" aria-label="Send message">
+                <span aria-hidden="true">➤</span>
+              </button>
+            </form>
+          </div>
+
+        </div><!-- /chat-page-layout -->
+
+      </section>
+
+    </main><!-- /page-content -->
+
+    <!-- Shared non-blocking feedback for shell-level actions. -->
+    <div class="app-toast-region" id="appToastRegion" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Visible only while the top-level refresh action is fetching data. -->
+    <div class="app-loading hidden" id="appLoading" aria-live="polite" aria-label="Refreshing page data">
+      <span class="app-loading-spinner" aria-hidden="true"></span>
+      <span>Refreshing data</span>
+    </div>
+
+    <footer class="app-footer" role="contentinfo">
+        <p>© 2026 Community Kitchen · v1.0.0 · Built with Node.js &amp; Chart.js</p>
+    </footer>
+
+  </div><!-- /app-wrapper -->
+
+  <!-- ═══════════════════════════════════════════════════════════
+       FLOATING CHATBOT BUBBLE (Phase 8) — always visible
+  ════════════════════════════════════════════════════════════ -->
+  <div id="floatChatWidget" class="float-chat-widget" aria-label="Chat assistant">
+
+    <!-- Bubble toggle button -->
+    <button
+      class="float-chat-toggle"
+      id="floatChatToggle"
+      aria-label="Open chat assistant"
+      aria-expanded="false"
+      aria-controls="floatChatPanel"
+    >
+      <span class="float-chat-icon" aria-hidden="true">💬</span>
+      <span class="float-chat-close-icon hidden" aria-hidden="true">✕</span>
+      <span class="float-chat-badge hidden" id="floatBadge" aria-label="Unread messages"></span>
+    </button>
+
+    <!-- Floating panel -->
+    <div
+      class="float-chat-panel hidden"
+      id="floatChatPanel"
+      role="dialog"
+      aria-modal="false"
+      aria-label="Kitchen AI Assistant"
+    >
+      <!-- Panel header -->
+      <div class="float-panel-header">
+        <div class="float-panel-info">
+          <span class="float-panel-avatar" aria-hidden="true">👨‍🍳</span>
+          <div>
+            <div class="float-panel-name">Kitchen Assistant</div>
+            <div class="float-panel-status">
+              <span class="float-status-dot" aria-hidden="true"></span>Online
+            </div>
+          </div>
+        </div>
+        <button class="float-panel-close" id="floatChatClose" aria-label="Close chat">✕</button>
+      </div>
+
+      <!-- Messages -->
+      <div class="float-chat-messages" id="floatMessages" role="log" aria-live="polite">
+        <div class="float-welcome">
+          <p>Hi! Ask me about meals, stock, or costs 👋</p>
+        </div>
+      </div>
+
+      <!-- Typing indicator -->
+      <div class="float-typing hidden" id="floatTyping" aria-live="polite">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+
+      <!-- Quick suggestions (shown until first message) -->
+      <div class="float-quick-chips" id="floatQuickChips">
+        <button class="quick-chip" data-msg="Meals today">Meals today</button>
+        <button class="quick-chip" data-msg="Stock balance">Stock balance</button>
+        <button class="quick-chip" data-msg="Average meals">Avg meals</button>
+        <button class="quick-chip" data-msg="Cost per meal">Cost/meal</button>
+      </div>
+
+      <!-- Input -->
+      <form class="float-input-row" id="floatChatForm" autocomplete="off">
+        <input
+          type="text"
+          id="floatChatInput"
+          class="float-input"
+          placeholder="Ask something…"
+          aria-label="Chat message"
+          maxlength="500"
+          autocomplete="off"
+        />
+        <button type="submit" class="float-send-btn" aria-label="Send">
+          <span aria-hidden="true">➤</span>
+        </button>
+      </form>
+    </div><!-- /float-chat-panel -->
+
+  </div><!-- /float-chat-widget -->
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"
+          crossorigin="anonymous"></script>
+
+  <!-- Feature modules (order matters) -->
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/register.js"></script>
+  <script src="/js/records-view.js"></script>
+  <script src="/js/analytics.js"></script>
+  <script src="/js/chatbot.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>
