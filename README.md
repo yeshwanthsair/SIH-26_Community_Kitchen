@@ -4,6 +4,31 @@
 
 Community Kitchen is a web application for recording daily meal distribution, ingredient consumption, stock balances, and operating status for a community kitchen. It provides a responsive dashboard, data register, searchable records, analytics, CSV export, and a data-backed conversational assistant.
 
+## How to Run
+
+```bash
+git clone https://github.com/yeshwanthsair/SIH-26_Community_Kitchen.git
+cd SIH-26_Community_Kitchen
+npm install
+cp .env.example .env
+npm start
+```
+
+Open **http://localhost:3000** in your browser.
+
+For development with auto-restart:
+
+```bash
+npm run dev
+```
+
+Optional — initialize and seed sample data:
+
+```bash
+npm run db:init
+npm run db:seed
+```
+
 ## Overview
 
 The application is a single-page interface backed by an Express API and a SQLite database. Kitchen staff can enter one record per calendar day, while coordinators can review operational history, track consumption, detect low stock, and export records for reporting.
@@ -91,8 +116,8 @@ Community-Kitchen/
 ### Setup
 
 ```bash
-git clone <repository-url>
-cd Community-Kitchen
+git clone https://github.com/yeshwanthsair/SIH-26_Community_Kitchen.git
+cd SIH-26_Community_Kitchen
 npm install
 ```
 
