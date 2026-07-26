@@ -438,6 +438,10 @@ function _openEditModal(id) {
   _el.editBackdrop?.removeAttribute('aria-hidden');
   _el.efDate?.focus();
   document.body.style.overflow = 'hidden';
+  // Scroll modal into view so top fields are visible
+  setTimeout(() => {
+    _el.editModal?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 50);
 }
 
 function _closeEditModal() {
