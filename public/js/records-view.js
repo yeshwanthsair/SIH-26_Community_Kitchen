@@ -605,6 +605,10 @@ function _openDeleteModal(id, date) {
   _el.deleteBackdrop?.removeAttribute('aria-hidden');
   _el.deleteConfirm?.focus();
   document.body.style.overflow = 'hidden';
+  // Scroll modal into view so it's always centered on screen
+  setTimeout(() => {
+    _el.deleteBackdrop?.querySelector('.modal')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 50);
 }
 
 function _closeDeleteModal() {
