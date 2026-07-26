@@ -4,6 +4,10 @@
 
 Community Kitchen is a web application for recording daily meal distribution, ingredient consumption, stock balances, and operating status for a community kitchen. It provides a responsive dashboard, data register, searchable records, analytics, CSV export, and a data-backed conversational assistant.
 
+## Demo Video
+
+[▶ Watch Demo](docs/Demo_video/Demo_video.mp4)
+
 ## How to Run
 
 ```bash
