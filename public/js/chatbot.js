@@ -177,6 +177,7 @@ function _intentLabel(intent) {
     total_meals:    '🔢 Total',
     summary:        '🗂️ Summary',
     status_info:    '📆 Status',
+    weekly_meals:   '📅 Weekly',
   };
   return MAP[intent] || intent;
 }

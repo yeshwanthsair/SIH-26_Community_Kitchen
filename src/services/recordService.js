@@ -177,10 +177,15 @@ function processChat(message) {
   }
 
   // ── intent: rice stock / current stock balance ─────────────────
+  // Catches queries about what is LEFT / REMAINING / AVAILABLE right now.
+  // Must stay above rice_usage so shared "how much rice" phrases resolve correctly.
   if (/\brice\s*stock\b/.test(msg) ||
       /\b(current|available|remaining)\s*stock\b/.test(msg) ||
       /\bstock\s*(balance|remaining|left|level)\b/.test(msg) ||
-      /\bhow much\s*(stock|rice)\s*(is\s*)?(left|remaining|available)\b/.test(msg)) {
+      /\bhow\s*much\s*(stock|rice)\s*(is\s*)?(left|remaining|available|in\s*stock)\b/.test(msg) ||
+      /\brice\s*(left|remaining|available|balance|level|in\s*stock)\b/.test(msg) ||
+      /\b(check|show|what\s*is)\s*(the\s*)?(current\s*)?rice\s*(stock|level|balance)\b/.test(msg) ||
+      /\bhow\s*much\s*rice\s*(do\s*we\s*have|have\s*we\s*got|is\s*there)\b/.test(msg)) {
     const trend  = model.getStockTrend(1);
     const latest = trend[0];
     if (latest) {
@@ -225,9 +230,14 @@ function processChat(message) {
   }
 
   // ── intent: rice usage ─────────────────────────────────────────
-  if (/\brice\s*(usage|used|consumption|consumed|per meal|kg|total|overall|average|avg|today)\b/.test(msg) ||
-      /\bhow\s*much\s*rice\b/.test(msg) ||
-      /\btotal\s*rice\b/.test(msg)) {
+  // Catches queries about how much rice has been CONSUMED / USED over time.
+  // "total rice" and "overall rice" alone are removed from the word list —
+  // if followed by stock words they would have already matched rice_stock above.
+  // "/how much rice/" is narrowed to consumption context only.
+  if (/\brice\s*(usage|used|consumption|consumed|per\s*meal|kg\s*per|average|avg)\b/.test(msg) ||
+      /\bhow\s*much\s*rice\s*(do\s*we\s*use|did\s*we\s*use|have\s*we\s*used|is\s*(being\s*)?used|per\s*day|per\s*meal)\b/.test(msg) ||
+      /\btotal\s*rice\s*(used|consumed|usage)\b/.test(msg) ||
+      /\brice\s*(consumption|consumed)\b/.test(msg)) {
     const s      = model.getAggregateSummary();
     const trend  = model.getStockTrend(1);
     const latest = trend[0];
@@ -283,6 +293,39 @@ function processChat(message) {
     };
   }
 
+  // ── intent: weekly meals ──────────────────────────────────────
+  // Checked BEFORE total_meals and summary to prevent broad patterns like
+  // /how\s*many\s*meals/ and /meals?\s*served/ from stealing week-specific queries.
+  if (/\bweekly\s*meals?\b/.test(msg) ||
+      /\bweekly\s*(total|count|report|breakdown|performance)\b/.test(msg) ||
+      /\bweek\s*meals?\s*count\b/.test(msg) ||
+      /\bmeals?\s*(this\s*week|for\s*the\s*week|in\s*the\s*(current\s*)?week)\b/.test(msg) ||
+      /\bthis\s*week\s*(meals?|total|count|report)\b/.test(msg) ||
+      /\bcurrent\s*week\s*(meals?|total|count|report)\b/.test(msg) ||
+      /\bhow\s*(many\s*)?meals?\s*(were\s*)?served\s*this\s*week\b/.test(msg) ||
+      /\bgive\s*me\s*this\s*week\b/.test(msg) ||
+      /\bdisplay\s*(the\s*)?current\s*week\b/.test(msg) ||
+      /\bhow\s*did\s*we\s*do\s*this\s*week\b/.test(msg)) {
+    const weekly = model.getWeeklyBreakdown(2);
+    if (weekly && weekly.length > 0) {
+      const latest = weekly[weekly.length - 1]; // getWeeklyBreakdown returns oldest-first after .reverse()
+      const prev   = weekly.length > 1 ? weekly[weekly.length - 2] : null;
+      const prevLine = prev
+        ? ` Previous week (${prev.week}): ${Number(prev.total_meals).toLocaleString()} meals over ${prev.operational_days} operational day${prev.operational_days !== 1 ? 's' : ''}.`
+        : '';
+      return {
+        intent: 'weekly_meals',
+        answer: `Latest week (${latest.week}): ${Number(latest.total_meals).toLocaleString()} meals served over ${latest.operational_days} operational day${latest.operational_days !== 1 ? 's' : ''}.${prevLine}`,
+        data:   { latest_week: latest, previous_week: prev || null },
+      };
+    }
+    return {
+      intent: 'weekly_meals',
+      answer: 'No weekly data found yet. Records may be too sparse to compute a weekly total.',
+      data:   null,
+    };
+  }
+
   // ── intent: total meals / overall meals served ─────────────────
   if (/\b(total|all\s*time|overall|ever)\s*meals?\b/.test(msg) ||
       /\bmeals?\s*(total|served|all\s*time|overall)\b/.test(msg) ||
@@ -324,7 +367,7 @@ function processChat(message) {
   // ── intent: unknown — required fallback ───────────────────────
   return {
     intent: 'unknown',
-    answer: "I don't know that yet. Try asking: meals today, average meals, highest meals, rice usage, cost per meal, stock balance, low stock, or this month's meals.",
+    answer: "I don't know that yet. Try asking: meals today, average meals, highest meals, rice usage, cost per meal, stock balance, low stock, this month's meals, or weekly meals.",
     data:   null,
   };
 }
